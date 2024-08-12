@@ -2,10 +2,15 @@ package br.com.fiap.ms_pagamento.controller;
 
 import br.com.fiap.ms_pagamento.dto.PagamentoDTO;
 import br.com.fiap.ms_pagamento.service.PagamentoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -22,9 +27,18 @@ public class PagamentoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PagamentoDTO> findById(@PathVariable long id){
+    public ResponseEntity<PagamentoDTO> findById(@PathVariable Long id){
         PagamentoDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
+    @PostMapping
+    public ResponseEntity<PagamentoDTO> insert(@RequestBody @Valid PagamentoDTO dto){
+        dto = service.insert(dto);
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(dto.getId()).toUri();
+        return ResponseEntity.created(uri).body(dto);
+    }
 }
